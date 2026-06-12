@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-topology
+data:
+  topology: |
+    Use AWS RDS PostgreSQL or Aurora PostgreSQL with 1 writer and 2 read replicas.
+    Place PgBouncer in transaction pooling mode between NestJS/Prisma and Postgres.
+    Keep DATABASE_URL pointed at PgBouncer; route analytical reads to replica endpoints.

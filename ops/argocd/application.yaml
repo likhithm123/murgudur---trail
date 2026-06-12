@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: murgdur-platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/murgdur/platform.git
+    targetRevision: main
+    path: ops/k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: murgdur
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

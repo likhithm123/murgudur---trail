@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: murgdur-web
+spec:
+  replicas: 12
+  selector:
+    matchLabels: { app: murgdur-web }
+  template:
+    metadata:
+      labels: { app: murgdur-web }
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/murgdur/web:latest
+          ports: [{ containerPort: 3000 }]
+          resources:
+            requests: { cpu: "500m", memory: "512Mi" }
+            limits: { cpu: "1500m", memory: "1Gi" }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: murgdur-web
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: murgdur-web
+  minReplicas: 12
+  maxReplicas: 120
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 60 }
