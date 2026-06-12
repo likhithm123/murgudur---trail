@@ -120,7 +120,7 @@ export function AuthView({ customer, onLogin, onNotice }: Props) {
           <button onClick={reset} className="h-11 bg-ink px-5 text-ivory">Reset Password</button>
         </>}
       </div>
-      <p className="mt-4 text-xs text-ink/55">Demo: demo@example.com / demo1234 · admin@murgdur.com / admin1234</p>
+      <p className="mt-4 text-xs text-ink/55">Sign up to create an account. Admin users must be seeded in the database.</p>
     </Panel>
   );
 }

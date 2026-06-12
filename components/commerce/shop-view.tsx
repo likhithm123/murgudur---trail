@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { formatMoney, getDiscountedPrice, getProductPrice, productImageForColor } from "@/lib/locale";
+import { hasProductImage } from "@/lib/product-image";
 import type { Category, Currency, Product, Region } from "@/lib/types";
+import { ProductImage } from "./product-image";
 import { categories, money } from "./shared";
 
 type Props = {
@@ -48,10 +49,16 @@ export function ShopView({ products, currency, region, addToCart }: Props) {
     }
   }, []);
 
+  const heroImage = useMemo(() => products.find((p) => hasProductImage(p.image))?.image ?? "", [products]);
+
   return (
     <div className="px-4 py-8 md:px-8">
       <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="relative min-h-[48svh] overflow-hidden bg-ink text-ivory">
-        <Image src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=2200&q=90" alt="Campaign" fill priority sizes="100vw" className="object-cover opacity-75" />
+        {heroImage ? (
+          <ProductImage src={heroImage} alt="Featured collection" fill priority sizes="100vw" className="object-cover opacity-75" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-ink via-pine/40 to-clay/30" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-transparent" />
         <div className="relative z-10 flex min-h-[48svh] flex-col justify-end p-6 md:p-10">
           <p className="text-xs uppercase tracking-[.28em]">Mens · Womens · Hand Bag · Watches</p>
@@ -112,7 +119,7 @@ function ProductCard({ product, currency, onOpen, addToCart }: { product: Produc
   return (
     <article data-reveal className="group relative overflow-hidden rounded-[1.4rem] border border-ink/10 bg-pearl shadow-sm transition hover:-translate-y-1 hover:shadow-xl" onClick={onOpen}>
       <div className="relative aspect-[4/5] overflow-hidden">
-        <Image src={img} alt={product.name} fill sizes="(min-width:1280px)25vw,50vw" className="object-cover transition duration-700 group-hover:scale-105" />
+        <ProductImage src={img} alt={product.name} fill sizes="(min-width:1280px)25vw,50vw" className="object-cover transition duration-700 group-hover:scale-105" />
         {soldOut && <div className="absolute inset-0 bg-ink/70 text-ivory flex items-center justify-center text-sm uppercase tracking-[.2em]">Out of stock</div>}
       </div>
       <div className="p-5">
@@ -143,7 +150,7 @@ function ProductDetail({ product, currency, onClose, addToCart }: { product: Pro
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const selectedColorImages = product.colorImages.find((item) => item.color === color)?.gallery ?? [];
-  const gallery = Array.from(new Set([product.image, ...(product.gallery ?? []), ...product.colorImages.map((item) => item.image), ...selectedColorImages]));
+  const gallery = Array.from(new Set([product.image, ...(product.gallery ?? []), ...product.colorImages.map((item) => item.image), ...selectedColorImages].filter(hasProductImage)));
   const displayedImage = gallery[selectedImageIndex] ?? product.image;
   const discounted = getDiscountedPrice(product, currency);
   const originalPrice = getProductPrice(product, currency);
@@ -158,7 +165,7 @@ function ProductDetail({ product, currency, onClose, addToCart }: { product: Pro
         <div className="relative aspect-square md:aspect-auto md:min-h-[520px]">
           <AnimatePresence mode="wait">
             <motion.div key={displayedImage} initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }} className="absolute inset-0">
-              <Image src={displayedImage} alt={product.name} fill className="object-cover" sizes="50vw" />
+              <ProductImage src={displayedImage} alt={product.name} fill className="object-cover" sizes="50vw" />
             </motion.div>
           </AnimatePresence>
           <button type="button" onClick={() => setSelectedImageIndex((prev) => (prev - 1 + gallery.length) % gallery.length)} className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white">‹</button>
@@ -206,7 +213,7 @@ function ProductDetail({ product, currency, onClose, addToCart }: { product: Pro
               <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
                 {gallery.map((src, index) => (
                   <button key={src} onClick={() => setSelectedImageIndex(index)} className={`relative shrink-0 overflow-hidden rounded-2xl border ${selectedImageIndex === index ? "border-ink" : "border-ink/10"} h-20 w-20`}>
-                    <img src={src} alt={`View ${index + 1}`} className="h-full w-full object-cover" />
+                    <ProductImage src={src} alt={`View ${index + 1}`} fill className="object-cover" />
                   </button>
                 ))}
               </div>

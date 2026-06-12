@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import type { Category, Order, OrderStatus, Product } from "@/lib/types";
+import { ProductImage } from "./product-image";
 import { Metric, money, Panel } from "./shared";
 
 const emptyProduct = (): Partial<Product> => ({
   name: "", category: "men" as Category, description: "", priceUsd: 0, priceEur: 0, priceInr: 0,
   discountPercent: 0, rating: 4.5, deliveryDays: 3,
-  image: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=1100&q=85",
+  image: "",
   gallery: [],
-  colorImages: [{ color: "Black", image: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=1100&q=85", gallery: [] }],
+  colorImages: [{ color: "Black", image: "", gallery: [] }],
   variants: [{ id: "", color: "Black", size: "M", quantity: 10 }]
 });
 
@@ -19,43 +20,7 @@ export function AdminView({ email, onNotice }: { email: string; onNotice: (m: st
   const [summary, setSummary] = useState({ revenueInr: 0, orders: 0, pending: 0, delivered: 0, returns: 0 });
   const [note, setNote] = useState("Admin update");
   const [draft, setDraft] = useState(emptyProduct());
-  const [imageUploadLabel, setImageUploadLabel] = useState("Choose main image");
-  const [galleryUploadLabel, setGalleryUploadLabel] = useState("Choose gallery images");
   const headers = { "x-user-email": email, "Content-Type": "application/json" };
-
-  function handleImageUpload(file: File | null) {
-    if (!file) return;
-    setImageUploadLabel(file.name);
-    setDraft({ ...draft, image: URL.createObjectURL(file) });
-  }
-
-  function handleGalleryUpload(files: FileList | null) {
-    if (!files?.length) return;
-    const fileArray = Array.from(files);
-    setGalleryUploadLabel(`${fileArray.length} image${fileArray.length > 1 ? "s" : ""} added`);
-    setDraft({
-      ...draft,
-      gallery: [
-        ...(draft.gallery ?? []),
-        ...fileArray.map((file) => URL.createObjectURL(file))
-      ]
-    });
-  }
-
-  function handleColorGalleryUpload(index: number, files: FileList | null) {
-    if (!files?.length) return;
-    const fileArray = Array.from(files);
-    setDraft({
-      ...draft,
-      colorImages: (draft.colorImages ?? []).map((item, itemIndex) => itemIndex === index ? {
-        ...item,
-        gallery: [
-          ...(item.gallery ?? []),
-          ...fileArray.map((file) => URL.createObjectURL(file))
-        ]
-      } : item)
-    });
-  }
 
   async function load() {
     const [o, s, p] = await Promise.all([
@@ -115,28 +80,28 @@ export function AdminView({ email, onNotice }: { email: string; onNotice: (m: st
         <input className="field" type="number" min={1} placeholder="Delivery days" value={draft.deliveryDays ?? ""} onChange={(e) => setDraft({ ...draft, deliveryDays: Number(e.target.value) })} />
       </div>
       <div className="mt-3 grid gap-2 md:grid-cols-2">
-        <label className="field flex items-center gap-3 justify-between">
-          <span className="text-sm text-ink/70">Main image</span>
-          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0] ?? null)} className="hidden" id="admin-image-upload" />
-          <button type="button" onClick={() => document.getElementById("admin-image-upload")?.click()} className="h-11 rounded-full border border-ink/20 bg-white px-4 text-sm text-ink transition hover:bg-ink/5">{imageUploadLabel}</button>
-        </label>
-        <div className="flex items-center gap-3 rounded-2xl border border-ink/10 bg-white/50 p-3 text-sm text-ink">
+        <input className="field" placeholder="Main image URL" value={draft.image ?? ""} onChange={(e) => setDraft({ ...draft, image: e.target.value })} />
+        <div className="relative flex items-center gap-3 rounded-2xl border border-ink/10 bg-white/50 p-3 text-sm text-ink">
           <span>Preview:</span>
-          <img src={draft.image} alt="preview" className="h-16 w-16 rounded object-cover" />
+          <div className="relative h-16 w-16 overflow-hidden rounded">
+            <ProductImage src={draft.image} alt="preview" fill className="object-cover" />
+          </div>
         </div>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <label className="field flex items-center gap-3 justify-between">
-          <span className="text-sm text-ink/70">Gallery images</span>
-          <input type="file" accept="image/*" multiple onChange={(e) => handleGalleryUpload(e.target.files)} className="hidden" id="admin-gallery-upload" />
-          <button type="button" onClick={() => document.getElementById("admin-gallery-upload")?.click()} className="h-11 rounded-full border border-ink/20 bg-white px-4 text-sm text-ink transition hover:bg-ink/5">{galleryUploadLabel}</button>
-        </label>
+        <input className="field" placeholder="Gallery image URL" onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          const value = (e.target as HTMLInputElement).value.trim();
+          if (!value) return;
+          setDraft({ ...draft, gallery: [...(draft.gallery ?? []), value] });
+          (e.target as HTMLInputElement).value = "";
+        }} />
         <div className="rounded-2xl border border-ink/10 bg-white/50 p-3 text-sm text-ink">
           <p className="font-medium">Gallery preview</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {(draft.gallery ?? []).map((src, index) => (
-              <div key={index} className="relative h-16 w-16 overflow-hidden rounded-xl border border-ink/10">
-                <img src={src} alt={`Gallery ${index + 1}`} className="h-full w-full object-cover" />
+              <div key={`${src}-${index}`} className="relative h-16 w-16 overflow-hidden rounded-xl border border-ink/10">
+                <ProductImage src={src} alt={`Gallery ${index + 1}`} fill className="object-cover" />
                 <button type="button" onClick={() => setDraft({ ...draft, gallery: (draft.gallery ?? []).filter((_, i) => i !== index) })} className="absolute right-0 top-0 h-6 w-6 rounded-full bg-ink/80 text-ivory">×</button>
               </div>
             ))}
@@ -155,18 +120,11 @@ export function AdminView({ email, onNotice }: { email: string; onNotice: (m: st
               <input className="field" placeholder="Image URL" value={item.image} onChange={(e) => setDraft({ ...draft, colorImages: (draft.colorImages ?? []).map((ci, i) => i === index ? { ...ci, image: e.target.value } : ci) })} />
               <button type="button" onClick={() => setDraft({ ...draft, colorImages: (draft.colorImages ?? []).filter((_, i) => i !== index) })} className="h-11 rounded-full border border-clay px-4 text-sm text-clay">Remove</button>
             </div>
-            <div className="grid gap-2 md:grid-cols-[1fr_auto]">
-              <label className="field flex items-center gap-3 justify-between">
-                <span className="text-sm text-ink/70">Color gallery</span>
-                <input type="file" accept="image/*" multiple onChange={(e) => handleColorGalleryUpload(index, e.target.files)} className="hidden" id={`color-gallery-upload-${index}`} />
-                <button type="button" onClick={() => document.getElementById(`color-gallery-upload-${index}`)?.click()} className="h-11 rounded-full border border-ink/20 bg-white px-4 text-sm text-ink transition hover:bg-ink/5">Add images</button>
-              </label>
-            </div>
             {(item.gallery ?? []).length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {(item.gallery ?? []).map((src, galleryIndex) => (
                   <div key={galleryIndex} className="relative h-16 w-16 overflow-hidden rounded-xl border border-ink/10">
-                    <img src={src} alt={`Color ${item.color} ${galleryIndex + 1}`} className="h-full w-full object-cover" />
+                    <ProductImage src={src} alt={`Color ${item.color} ${galleryIndex + 1}`} fill className="object-cover" />
                     <button type="button" onClick={() => setDraft({ ...draft, colorImages: (draft.colorImages ?? []).map((ci, i) => i === index ? { ...ci, gallery: ci.gallery?.filter((_, j) => j !== galleryIndex) } : ci) })} className="absolute right-0 top-0 h-6 w-6 rounded-full bg-ink/80 text-ivory">×</button>
                   </div>
                 ))}

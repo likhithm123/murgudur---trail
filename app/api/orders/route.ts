@@ -1,8 +1,7 @@
-import { orders } from "@/lib/store";
+import { listOrders } from "@/lib/orders-db";
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const email = new URL(request.url).searchParams.get("email");
-  const all = Array.from(orders.values());
-  if (!email) return Response.json(all);
-  return Response.json(all.filter((order) => order.customerEmail === email));
+  const orders = await listOrders(email);
+  return Response.json(orders);
 }

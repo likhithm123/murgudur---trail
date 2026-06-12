@@ -35,12 +35,26 @@ export default function CommerceApp({ initialProducts = [] }: { initialProducts:
       setDetectedRegion(d.region);
       setDetectedCountry(d.country ?? null);
       setDetectedIp(d.ip ?? null);
-      // if user already accepted earlier, set cookies/server-side and apply region
       if (localStorage.getItem('md_cookie_consent') === 'accepted') {
         void setRegionAndCookie(d.region);
       }
     });
     fetch("/api/products").then((r) => r.json()).then(setProducts);
+
+    const savedEmail = sessionStorage.getItem("md_customer_email");
+    if (savedEmail) {
+      fetch(`/api/customer?email=${encodeURIComponent(savedEmail)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((c: Customer | null) => {
+          if (!c) {
+            sessionStorage.removeItem("md_customer_email");
+            return;
+          }
+          setCustomer(c);
+          setSelectedAddress(c.addresses[0]?.id ?? "");
+          void loadOrders(c.email);
+        });
+    }
   }, []);
 
   async function setRegionAndCookie(r: Region) {
@@ -68,6 +82,7 @@ export default function CommerceApp({ initialProducts = [] }: { initialProducts:
   }
 
   function onLogin(c: Customer) {
+    sessionStorage.setItem("md_customer_email", c.email);
     setCustomer(c);
     setSelectedAddress(c.addresses.find((a) => a.isDefault)?.id ?? c.addresses[0]?.id ?? "");
     void loadOrders(c.email);
@@ -137,7 +152,7 @@ export default function CommerceApp({ initialProducts = [] }: { initialProducts:
             <button onClick={() => setView("checkout")} className="inline-flex h-11 items-center gap-2 border border-ink px-4 text-sm">
               <ShoppingBag size={18} /> {cart.reduce((s, i) => s + i.qty, 0)}
             </button>
-            {customer && <button onClick={() => { setCustomer(null); setOrders([]); setView("shop"); }} className="inline-flex h-11 items-center gap-2 border border-ink/25 px-4 text-sm"><LogOut size={18} /> {customer.name.split(" ")[0]}</button>}
+            {customer && <button onClick={() => { sessionStorage.removeItem("md_customer_email"); setCustomer(null); setOrders([]); setView("shop"); }} className="inline-flex h-11 items-center gap-2 border border-ink/25 px-4 text-sm"><LogOut size={18} /> {customer.name.split(" ")[0]}</button>}
           </div>
         </header>
 

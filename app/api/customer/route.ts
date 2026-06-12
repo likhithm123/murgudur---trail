@@ -1,16 +1,20 @@
-import { sanitizeCustomer } from "@/lib/auth-otp";
-import { getCustomer, updateCustomer } from "@/lib/store";
+import { prisma } from "@/lib/db";
+import { mapUserToCustomer } from "@/lib/users-db";
 
 export async function GET(request: Request) {
   const email = new URL(request.url).searchParams.get("email");
   if (!email) return new Response("email required", { status: 400 });
-  const customer = getCustomer(email);
-  if (!customer) return new Response("Not found", { status: 404 });
-  return Response.json(sanitizeCustomer(customer));
+  const user = await prisma.user.findUnique({ where: { email }, include: { addresses: true } });
+  if (!user) return new Response("Not found", { status: 404 });
+  return Response.json(mapUserToCustomer(user));
 }
 
 export async function PATCH(request: Request) {
   const body = await request.json();
-  const customer = updateCustomer(body.email, { name: body.name, phone: body.phone });
-  return Response.json(sanitizeCustomer(customer));
+  const user = await prisma.user.update({
+    where: { email: body.email },
+    data: { name: body.name, phone: body.phone },
+    include: { addresses: true }
+  });
+  return Response.json(mapUserToCustomer(user));
 }

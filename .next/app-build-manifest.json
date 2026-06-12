@@ -46,20 +46,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/admin/inventory/route.js"
     ],
-    "/api/checkout/route": [
+    "/api/auth/otp/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/checkout/route.js"
+      "static/chunks/app/api/auth/otp/route.js"
     ],
-    "/api/orders/[id]/invoice/route": [
+    "/api/customer/address/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/orders/[id]/invoice/route.js"
-    ],
-    "/api/orders/[id]/cancel/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/orders/[id]/cancel/route.js"
+      "static/chunks/app/api/customer/address/route.js"
     ]
   }
 }

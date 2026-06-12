@@ -11,6 +11,7 @@ model User {
   id        String    @id @default(cuid())
   name      String
   email     String    @unique
+  passwordHash String?
   phone     String?
   role      Role      @default(CUSTOMER)
   addresses Address[]
@@ -76,6 +77,7 @@ model Order {
   addressId             String
   address               Address         @relation(fields: [addressId], references: [id])
   items                 OrderItem[]
+  currency              String          @default("INR")
   subtotalInr           Int
   deliveryInr           Int
   totalInr              Int
@@ -87,6 +89,12 @@ model Order {
   statusHistory         OrderStatusLog[]
   invoiceNo             String          @unique
   invoiceUrl            String?
+  returnReason          String?
+  returnProofUrl        String?
+  returnStatus          ReturnStatus?
+  returnAdminNote       String?
+  returnRequestedAt     DateTime?
+  returnResolvedAt      DateTime?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
@@ -100,7 +108,10 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product @relation(fields: [productId], references: [id])
+  variantId String?
   name      String
+  color     String?
+  size      String?
   priceInr  Int
   qty       Int
 }
@@ -144,4 +155,14 @@ enum OrderStatus {
   OUT_FOR_DELIVERY
   DELIVERED
   CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+}
+
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  REFUNDED
 }

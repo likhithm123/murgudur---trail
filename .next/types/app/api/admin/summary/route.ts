@@ -1,4 +1,4 @@
-// File: D:\murugdur\app\api\admin\summary\route.ts
+// File: C:\Users\slohi\Downloads\MurgdurV3\murgudur---trail\app\api\admin\summary\route.ts
 import * as entry from '../../../../../../app/api/admin/summary/route.js'
 import type { NextRequest } from 'next/server.js'
 

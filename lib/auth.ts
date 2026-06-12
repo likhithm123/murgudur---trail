@@ -1,7 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Redis from "ioredis";
-import { getCustomer } from "./store";
+import { verifyPassword } from "./auth-otp";
+import { prisma } from "./db";
 
 const redis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
   lazyConnect: true,
@@ -26,14 +27,13 @@ export const authOptions: NextAuthOptions = {
       name: "Email",
       credentials: {
         email: { label: "Email", type: "email" },
-        name: { label: "Name", type: "text" },
-        phone: { label: "Phone", type: "text" }
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null;
-        const customer = getCustomer(credentials.email);
-        if (!customer) return null;
-        return { id: customer.id, email: customer.email, name: customer.name };
+        if (!credentials?.email || !credentials.password) return null;
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        if (!user?.passwordHash || !verifyPassword(credentials.password, user.passwordHash)) return null;
+        return { id: user.id, email: user.email, name: user.name };
       }
     })
   ],
