@@ -37,5 +37,5 @@ export async function GET(request: Request) {
   const category = new URL(request.url).searchParams.get("category") as Category | null;
   const where = category ? { category: categoryToPrisma[category] } : {};
   const items = await prisma.product.findMany({ where, include: { variants: true } });
-  return Response.json(category ? items.map(mapProduct).filter((i) => i.category === category) : items.map(mapProduct));
+  return Response.json(category ? items.map(mapProduct).filter((i: any) => i.category === category) : items.map(mapProduct));
 }
