@@ -212,7 +212,7 @@ export async function cancelOrder(orderId: string, email: string, reason: string
   if (order.user.email !== email) throw new Error("Forbidden");
   if (!["PLACED", "CONFIRMED"].includes(order.status)) throw new Error("Order cannot be cancelled");
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
     for (const item of order.items) {
       if (!item.variantId) continue;
       await tx.productVariant.update({
