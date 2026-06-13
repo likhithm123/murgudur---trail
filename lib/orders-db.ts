@@ -121,7 +121,7 @@ const address = user.addresses.find((item: any) => item.id === addressId);
   const hydrated = await Promise.all(items.map(async (item) => {
     const product = await prisma.product.findUnique({ where: { id: item.productId }, include: { variants: true } });
     if (!product) throw new Error("Invalid product");
-    const variant = product.variants.find((entry) => entry.id === item.variantId);
+    const variant = product.variants.find((entry: any) => entry.id === item.variantId);
     if (!variant) throw new Error("Invalid product variant");
     if (variant.quantity < item.qty) throw new Error(`${product.name} ${variant.color}/${variant.size} is out of stock`);
 
