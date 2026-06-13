@@ -16,7 +16,7 @@ function mapCategoryFromPrisma(cat: string) {
 
 export async function GET() {
   const items = await prisma.product.findMany({ include: { variants: true } });
-  return Response.json(items.map((p) => ({
+  return Response.json(items.map((p: any) => ({
     id: p.id,
     name: p.name,
     category: mapCategoryFromPrisma(p.category),
