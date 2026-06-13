@@ -2,7 +2,11 @@ import CommerceApp from "@/components/commerce-app";
 import { prisma } from "@/lib/db";
 import type { Category, Product } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
+
+
+
 
 function mapCategory(cat: string): Category {
   return cat === "MEN" ? "men" : cat === "WOMEN" ? "women" : cat === "HANDBAG" ? "handbag" : cat === "WATCHES" ? "watches" : "men";
