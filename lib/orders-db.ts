@@ -270,7 +270,7 @@ export async function resolveReturn(orderId: string, status: ReturnStatus, admin
       }
     });
   } else if (status === "REFUNDED") {
-    await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: any) => {
       for (const item of order.items) {
         if (!item.variantId) continue;
         await tx.productVariant.update({
