@@ -110,7 +110,7 @@ export async function createOrder(email: string, addressId: string, items: CartI
   const user = await prisma.user.findUnique({ where: { email }, include: { addresses: true } });
   if (!user) throw new Error("Customer not found");
 
-  const address = user.addresses.find((item) => item.id === addressId);
+const address = user.addresses.find((item: any) => item.id === addressId);
   if (!address) throw new Error("Address required");
 
   const orderCount = await prisma.order.count();
