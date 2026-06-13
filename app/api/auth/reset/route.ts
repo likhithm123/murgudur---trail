@@ -1,3 +1,4 @@
+import { rateLimit } from "@/lib/rate-limit";
 import { requireAdmin, resetPassword } from "@/lib/users-db";
 import { consumeOtp } from "@/lib/auth-otp";
 import { resetPasswordSchema } from "@/lib/validators";
