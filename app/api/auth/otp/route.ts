@@ -3,6 +3,16 @@ import { prisma } from "@/lib/db";
 import { resetOtpSchema, signupOtpSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
+  const ip =
+  request.headers.get("x-forwarded-for")
+  ?? "unknown";
+
+if (!rateLimit(ip)) {
+  return Response.json(
+    { message: "Too many requests" },
+    { status: 429 }
+  );
+}
   const body = await request.json();
   const purpose = body.purpose as "signup" | "reset";
   if (purpose === "signup") {
