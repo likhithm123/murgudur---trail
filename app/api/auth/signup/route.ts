@@ -1,3 +1,4 @@
+import { rateLimit } from "@/lib/rate-limit";
 import { consumeOtp, hashPassword } from "@/lib/auth-otp";
 import { verifySignupSchema } from "@/lib/validators";
 import { prisma } from "@/lib/db";
