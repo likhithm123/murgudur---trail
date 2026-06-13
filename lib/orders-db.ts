@@ -41,7 +41,7 @@ export function mapDbOrder(order: NonNullable<DbOrder>): Order {
     paymentGatewayOrderId: order.paymentGatewayOrderId ?? undefined,
     trackingId: order.trackingId,
     status: order.status as OrderStatus,
-    statusHistory: order.statusHistory.map((h) => ({
+   statusHistory: order.statusHistory.map((h: any) => ({
       status: h.status as OrderStatus,
       note: h.note,
       at: h.createdAt.toISOString(),
