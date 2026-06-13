@@ -309,10 +309,11 @@ export async function resolveReturn(orderId: string, status: ReturnStatus, admin
 export async function getSalesSummary() {
   const orders = await prisma.order.findMany({ select: { totalInr: true, status: true, returnStatus: true } });
   return {
-    revenueInr: orders.reduce((sum, order) => sum + order.totalInr, 0),
+    revenueInr: orders.reduce((sum: number, order: any) => sum + order.totalInr, 0),
     orders: orders.length,
-    pending: orders.filter((o) => !["DELIVERED", "CANCELLED", "REFUNDED"].includes(o.status)).length,
-    delivered: orders.filter((o) => o.status === "DELIVERED").length,
+   pending: orders.filter((o: any) => ...)
+
+delivered: orders.filter((o: any) => ...)
     returns: orders.filter((o) => o.returnStatus === "REQUESTED").length
   };
 }
