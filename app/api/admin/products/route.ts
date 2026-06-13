@@ -24,7 +24,7 @@ export async function GET() {
     priceInr: p.priceInr,
     image: (p.images ?? [])[0] ?? "",
     gallery: (p.images ?? []).slice(1),
-    variants: (p.variants ?? []).map((v) => ({ id: v.id, color: v.color, size: v.size, quantity: v.quantity }))
+    variants: (p.variants ?? []).map((v: any) => ({ id: v.id, color: v.color, size: v.size, quantity: v.quantity }))
   })));
 }
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         priceInr: Math.round(body.priceInr),
         images: dbImages(body),
         variants: {
-          create: body.variants.map((v) => ({ color: v.color, size: v.size, quantity: v.quantity }))
+          create: body.variants.map((v: any) => ({ color: v.color, size: v.size, quantity: v.quantity }))
         }
       },
       include: { variants: true }
