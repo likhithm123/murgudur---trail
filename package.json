@@ -5,7 +5,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-  "postinstall": "prisma generate",
     "lint": "next lint",
     "api:dev": "nest start --watch",
     "api:build": "nest build",
