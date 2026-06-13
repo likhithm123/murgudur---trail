@@ -143,7 +143,7 @@ const address = user.addresses.find((item: any) => item.id === addressId);
   const delivery = subtotal > threshold ? 0 : currency === "INR" ? 900 : currency === "EUR" ? 12 : 15;
   const total = subtotal + delivery;
 
-  const order = await prisma.$transaction(async (tx) => {
+  const order = await prisma.$transaction(async (tx: any) => {
     for (const item of hydrated) {
       const variant = await tx.productVariant.findUnique({ where: { id: item.variantId } });
       if (!variant || variant.quantity < item.qty) throw new Error("Insufficient stock");
