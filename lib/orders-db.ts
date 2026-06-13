@@ -24,7 +24,7 @@ export function mapDbOrder(order: NonNullable<DbOrder>): Order {
     customerId: order.userId,
     customerEmail: order.user.email,
     address: mapAddress(order.address),
-    items: order.items.map((item) => ({
+    items: order.items.map((item: any) => ({
       productId: item.productId,
       variantId: item.variantId ?? "",
       qty: item.qty,
