@@ -308,12 +308,21 @@ export async function resolveReturn(orderId: string, status: ReturnStatus, admin
 
 export async function getSalesSummary() {
   const orders = await prisma.order.findMany({ select: { totalInr: true, status: true, returnStatus: true } });
-  return {
-    revenueInr: orders.reduce((sum: number, order: any) => sum + order.totalInr, 0),
-    orders: orders.length,
-   pending: orders.filter((o: any) => ...)
+return {
+  revenueInr: orders.reduce((sum: number, order: any) => sum + order.totalInr, 0),
 
-delivered: orders.filter((o: any) => ...)
-    returns: orders.filter((o) => o.returnStatus === "REQUESTED").length
-  };
+  orders: orders.length,
+
+  pending: orders.filter((o: any) =>
+    !["DELIVERED", "CANCELLED", "REFUNDED"].includes(o.status)
+  ).length,
+
+  delivered: orders.filter((o: any) =>
+    o.status === "DELIVERED"
+  ).length,
+
+  returns: orders.filter((o: any) =>
+    o.returnStatus === "REQUESTED"
+  ).length
+};
 }
