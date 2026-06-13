@@ -4,6 +4,16 @@ import { prisma } from "@/lib/db";
 import { mapUserToCustomer } from "@/lib/users-db";
 
 export async function POST(request: Request) {
+  const ip =
+  request.headers.get("x-forwarded-for")
+  ?? "unknown";
+
+if (!rateLimit(ip)) {
+  return Response.json(
+    { message: "Too many requests" },
+    { status: 429 }
+  );
+}
   const data = verifySignupSchema.parse(await request.json());
   if (!consumeOtp(data.email, data.otp, "signup")) return Response.json({ message: "Invalid OTP" }, { status: 400 });
   try {
