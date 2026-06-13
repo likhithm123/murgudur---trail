@@ -1,3 +1,4 @@
+import { rateLimit } from "@/lib/rate-limit";
 import { issueOtp } from "@/lib/auth-otp";
 import { prisma } from "@/lib/db";
 import { resetOtpSchema, signupOtpSchema } from "@/lib/validators";
